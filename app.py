@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 import os
 
-app = Flask(__name__)
+app = Flask(__name)
 
 # Define the upload folder
 UPLOAD_FOLDER = 'uploads'
