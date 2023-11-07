@@ -5,20 +5,13 @@ import os
 
 app = Flask(__name__)
 
-def get_blob_service_client_account_key(self):
-    # TODO: Replace <storage-account-name> with your actual storage account name
-    account_url = "https://training-tr.blob.core.windows.net"
-    shared_access_key = os.getenv("Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==")
-    credential = shared_access_key
+# Define your Azure Blob Storage account and container information
+account_url = "https://trenstoragetrain.blob.core.windows.net"
+container_name = "test104"
 
-    # Create the BlobServiceClient object
-    blob_service_client = BlobServiceClient(account_url, credential=credential)
-
-    return blob_service_client
-
-# Define the upload folder
-#UPLOAD_FOLDER = 'uploads'
-#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Create the BlobServiceClient object with Azure DefaultAzureCredential
+credential = DefaultAzureCredential()
+blob_service_client = BlobServiceClient(account_url, credential=credential)
 
 @app.route('/')
 def index():
@@ -36,8 +29,18 @@ def upload_file():
 
     if file:
         filename = file.filename
-        file.save(filename)
-        blob_client = blob_service_client.get_blob_client(container = container, blob = filename)
-        with open(filename, "rb") as data:
-            blob_client.upload_blob(data=data, overwrite=True)
-        return 'File successfully uploaded'
+
+        try:
+            # Create a BlobClient for the specified container and file name
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+
+            # Upload the file to Azure Blob Storage
+            with file.stream as data:
+                blob_client.upload_blob(data, overwrite=True)
+
+            return 'File successfully uploaded to Azure Blob Storage'
+        except Exception as e:
+            return f'Error uploading file: {str(e)}'
+
+if __name__ == '__main__':
+    app.run(debug=True, port=8000)
