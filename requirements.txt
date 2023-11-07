@@ -1,2 +1,7 @@
 Flask==2.2.5
 Werkzeug==2.2.3
+azure-common
+azure-nspkg
+azure-storage
+azure-storage-blob
+azure-identity
