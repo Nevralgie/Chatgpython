@@ -1,4 +1,4 @@
-#from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from flask import Flask, request, render_template
 import os
