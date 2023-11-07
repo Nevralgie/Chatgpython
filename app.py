@@ -1,4 +1,4 @@
-from azure.identity import DefaultAzureCredential
+#from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from flask import Flask, request, render_template
 import os
@@ -8,10 +8,11 @@ app = Flask(__name__)
 # Define your Azure Blob Storage account and container information
 account_url = "https://trenstoragetrain.blob.core.windows.net"
 container_name = "test104"
+blob_service_client = BlobServiceClient(account_url=account_url)
 
 # Create the BlobServiceClient object with Azure DefaultAzureCredential
-credential = DefaultAzureCredential()
-blob_service_client = BlobServiceClient(account_url, credential=credential)
+#credential = DefaultAzureCredential()
+#blob_service_client = BlobServiceClient(account_url, credential=credential)
 
 @app.route('/')
 def index():
@@ -31,8 +32,8 @@ def upload_file():
         filename = file.filename
 
         try:
-            # Create a BlobClient for the specified container and file name
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+            # Get a blob client
+            blob_client = blob_service_client.get_blob_client(container=container_name, blob=file.filename)
 
             # Upload the file to Azure Blob Storage
             with file.stream as data:
@@ -43,4 +44,4 @@ def upload_file():
             return f'Error uploading file: {str(e)}'
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000)
+    app.run(debug=True)
