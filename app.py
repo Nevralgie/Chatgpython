@@ -1,28 +1,32 @@
-from flask import Flask, request, render_template
 import os
 
-app = Flask(__name)
+from flask import (Flask, redirect, render_template, request,
+                   send_from_directory, url_for)
 
-# Define the upload folder
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app = Flask(__name__)
+
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+   print('Request for index page received')
+   return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return 'No file part'
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-    file = request.files['file']
+@app.route('/hello', methods=['POST'])
+def hello():
+   name = request.form.get('name')
 
-    if file.filename == '':
-        return 'No selected file'
+   if name:
+       print('Request for hello page received with name=%s' % name)
+       return render_template('hello.html', name = name)
+   else:
+       print('Request for hello page received with no name or blank name -- redirecting')
+       return redirect(url_for('index'))
 
-    if file:
-        filename = file.filename
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        return 'File successfully uploaded'
 
+if __name__ == '__main__':
+   app.run()
