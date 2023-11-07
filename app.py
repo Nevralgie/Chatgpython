@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Define your Azure Blob Storage account and container information
 connection_string = "DefaultEndpointsProtocol=https;AccountName=trenstoragetrain;AccountKey=Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==;EndpointSuffix=core.windows.net"
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-
+container_name = "test104"
 # Create the BlobServiceClient object with Azure DefaultAzureCredential
 #credential = DefaultAzureCredential()
 #blob_service_client = BlobServiceClient(account_url, credential=credential)
