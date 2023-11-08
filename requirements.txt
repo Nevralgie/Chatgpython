@@ -4,3 +4,4 @@ azure-common
 azure-nspkg
 azure-storage-blob
 azure-identity
+datetime
