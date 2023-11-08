@@ -6,11 +6,17 @@ from flask import Flask, request, render_template
 import os
 
 app = Flask(__name__)
-
+    
 # Define your Azure Key Vault URL and secret name
 keyvault_url = "https://trkvara.vault.azure.net"
 secret_name = "webappcs"
 
+def get_connection_string_from_keyvault(keyvault_url, secret_name):
+    credential = DefaultAzureCredential()
+    secret_client = SecretClient(vault_url=keyvault_url, credential=credential)
+    secret = secret_client.get_secret(secret_name)
+    return secret.value
+    
 # Retrieve the connection string from Azure Key Vault
 connection_string = get_connection_string_from_keyvault(keyvault_url, secret_name)
 
@@ -18,12 +24,6 @@ connection_string = get_connection_string_from_keyvault(keyvault_url, secret_nam
 connection_string = "DefaultEndpointsProtocol=https;AccountName=trenstoragetrain;AccountKey=Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==;EndpointSuffix=core.windows.net"
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_name = "test104"
-
-def get_connection_string_from_keyvault(keyvault_url, secret_name):
-    credential = DefaultAzureCredential()
-    secret_client = SecretClient(vault_url=keyvault_url, credential=credential)
-    secret = secret_client.get_secret(secret_name)
-    return secret.value
     
 @app.route('/')
 def index():
