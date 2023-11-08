@@ -66,6 +66,6 @@ def upload_file():
             return f'File successfully uploaded to Azure Blob Storage. Temporary link: <a href="{sas_url}">Download</a>'
         except Exception as e:
             return f'Error uploading file: {str(e)}'
-
+# Enable debugging mode
 if __name__ == '__main__':
     app.run(debug=True)
