@@ -1,5 +1,6 @@
 #from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from datetime import datetime, timedelta
 from flask import Flask, request, render_template
 import os
 
@@ -38,7 +39,20 @@ def upload_file():
             with file.stream as data:
                 blob_client.upload_blob(data, overwrite=True)
 
-            return 'File successfully uploaded to Azure Blob Storage'
+              # Generate a Shared Access Signature (SAS) token for the blob
+            sas_token = generate_blob_sas(
+                account_name=blob_service_client.account_name,
+                container_name=container_name,
+                blob_name=filename,
+                account_key=blob_service_client.credential.account_key,
+                permission=BlobSasPermissions(read=True),
+                expiry=datetime.utcnow() + timedelta(hours=1)  # Adjust the expiration time by replacing the value of hours
+            )
+
+            # Build the temporary download link
+            sas_url = f"{blob_client.url}?{sas_token}"
+
+            return f'File successfully uploaded to Azure Blob Storage. Temporary link: <a href="{sas_url}">Download</a>'
         except Exception as e:
             return f'Error uploading file: {str(e)}'
 
