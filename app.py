@@ -1,3 +1,4 @@
+import hvac
 #from azure.identity import DefaultAzureCredential
 #from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
@@ -11,6 +12,30 @@ app = Flask(__name__)
 #keyvault_url = "https://trkvara.vault.azure.net"
 #secret_name = "webappcs"
 
+# # Define your HCP vault secrets URL and secret path
+vault_url = "https://api.hashicorp.cloud"
+vault_secret_path = "/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"
+
+# Retrieve the secret from HashiCorp Vault
+def get_secret_from_vault(vault_url, vault_secret_path):
+    client = hvac.Client(url=vault_url)
+
+    # Authenticate and get a short-lived token
+    client.auth.azure.login(client_id="yScF6ITDLLHe5bOYScpTfyBMCiG0XkPva", client_secret="qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-", role="Viewer")
+    token_response = client.create_token(ttl="1h")
+    short_lived_token = token_response["auth"]["client_token"]
+
+    # Set the token for the client
+    client.token = short_lived_token
+
+    # Retrieve the secret from Vault
+    secret_data = client.read(vault_secret_path)
+
+    if secret_data and "data" in secret_data:
+        return secret_data["data"]
+    else:
+        return None
+        
 #def get_connection_string_from_keyvault(keyvault_url, secret_name):
  #   credential = DefaultAzureCredential()
  #   secret_client = SecretClient(vault_url=keyvault_url, credential=credential)
