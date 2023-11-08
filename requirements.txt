@@ -4,4 +4,5 @@ azure-common
 azure-nspkg
 azure-storage-blob
 azure-identity
+azure-keyvault-secrets
 datetime
