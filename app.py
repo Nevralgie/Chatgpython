@@ -42,13 +42,15 @@ def get_secret_from_vault(vault_url, vault_secret_path):
  #   secret = secret_client.get_secret(secret_name)
  #   return secret.value
     
-# Retrieve the connection string from Azure Key Vault
-#connection_string = get_connection_string_from_keyvault()
+# Use the secret to retrieve the connection string
+secret_value = get_secret_from_vault(vault_url, vault_secret_path)
 
-# Define your Azure Blob Storage account and container information
-connection_string = "DefaultEndpointsProtocol=https;AccountName=trenstoragetrain;AccountKey=Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==;EndpointSuffix=core.windows.net"
-blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-container_name = "test104"
+if secret_value:
+    connection_string = secret_value["connection_string"]
+
+    # Define your Azure Blob Storage account and container information
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    container_name = "test104"
     
 @app.route('/')
 def index():
