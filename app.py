@@ -1,5 +1,5 @@
 #from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
 import os
