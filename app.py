@@ -1,4 +1,3 @@
-#from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
@@ -10,9 +9,6 @@ app = Flask(__name__)
 connection_string = "DefaultEndpointsProtocol=https;AccountName=trenstoragetrain;AccountKey=Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==;EndpointSuffix=core.windows.net"
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_name = "test104"
-# Create the BlobServiceClient object with Azure DefaultAzureCredential
-#credential = DefaultAzureCredential()
-#blob_service_client = BlobServiceClient(account_url, credential=credential)
 
 @app.route('/')
 def index():
@@ -39,7 +35,7 @@ def upload_file():
             with file.stream as data:
                 blob_client.upload_blob(data, overwrite=True)
 
-              # Generate a Shared Access Signature (SAS) token for the blob
+              # Generate a SAS (Shared Access Signature) token for the blob
             sas_token = generate_blob_sas(
                 account_name=blob_service_client.account_name,
                 container_name=container_name,
