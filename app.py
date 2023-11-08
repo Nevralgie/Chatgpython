@@ -18,7 +18,7 @@ def get_connection_string_from_keyvault(keyvault_url, secret_name):
     return secret.value
     
 # Retrieve the connection string from Azure Key Vault
-connection_string = get_connection_string_from_keyvault(keyvault_url, secret_name)
+connection_string = get_connection_string_from_keyvault()
 
 # Define your Azure Blob Storage account and container information
 connection_string = "DefaultEndpointsProtocol=https;AccountName=trenstoragetrain;AccountKey=Ejuv1L7PhgAzydfcDietIOv8dBejza1kuXqprTp/wycOeZcHnJlXCZNWOmPA/JCxFoqGiblRag6x+ASttCA8aw==;EndpointSuffix=core.windows.net"
