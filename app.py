@@ -1,4 +1,4 @@
-from hvac import Client
+import hvac
 #from azure.identity import DefaultAzureCredential
 #from azure.keyvault.secrets import SecretClient
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
