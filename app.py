@@ -1,43 +1,51 @@
-import hvac
-#from azure.identity import DefaultAzureCredential
-#from azure.keyvault.secrets import SecretClient
+import requests
+import json
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
 import os
 
 app = Flask(__name__)
-    
-def get_secret_from_vault(vault_url, vault_secret_path, service_principal_id, service_principal_secret, role):
-    client = hvac.Client(url=vault_url)
 
-    # Authenticate using service principal credentials and role
-    client.auth.azure.login(
-        url="https://login.microsoftonline.com/common",
-        tenant_id="7349d3b2-951f-41be-877e-d8ccd9f3e73c",
-        service_principal_id=service_principal_id,
-        service_principal_secret=service_principal_secret,
-        role=role
-    )
+
+def get_secret_from_vault(vault_url, vault_secret_path, hcpapi_token):
+    headers = {"Authorization": f"Bearer {hcpapi_token}"}
 
     # Retrieve the secret from Vault
-    secret_data = client.read(vault_secret_path)
+    secret_data = requests.get(vault_url, headers=headers)
 
-    if secret_data and "data" in secret_data:
-        return secret_data["data"]
+    if secret_data.status_code == 200:
+        secret_data = json.loads(secret_data.text)["data"]
+        return secret_data
     else:
-        return None
+        raise Exception(f"Failed to retrieve secret: {secret_data.status_code} - {secret_data.text}")
 
 
-# Replace with your actual service principal credentials and role
-service_principal_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"
-service_principal_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"
-role = "Viewer"
+def get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret):
+    headers = {'content-type': 'application/json'}
+    payload = {"audience": "https://api.hashicorp.cloud",
+                "grant_type": "client_credentials",
+                "client_id": hcpapi_client_id,
+                "client_secret": hcpapi_client_secret}
 
-vault_url = "https://api.hashicorp.cloud"
-vault_secret_path = "/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"
+    response = requests.post(hcpapi_token_url, headers=headers, data=json.dumps(payload))
 
-secret_value = get_secret_from_vault(vault_url, vault_secret_path, service_principal_id, service_principal_secret, role)
+    if response.status_code == 200:
+        hcpapi_token = json.loads(response.text)["access_token"]
+        return hcpapi_token
+    else:
+        raise Exception("Failed to retrieve HCP API token")
+
+
+# Replace with your actual HCP API token retrieval information
+hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
+hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"
+hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"
+
+hcpapi_token = get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret)
+vault_url = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"
+
+secret_value = get_secret_from_vault(vault_url, vault_secret_path, hcpapi_token)
 
 if secret_value:
     connection_string = secret_value["connection_string"]
