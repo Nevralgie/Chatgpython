@@ -6,8 +6,9 @@ from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
-# Define blob_service_client at the module level
+# Define at the module level
 blob_service_client = None
+container_name = None
 
 # Replace with your actual HCP API token retrieval information
 hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
