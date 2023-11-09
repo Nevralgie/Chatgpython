@@ -1,6 +1,6 @@
 import requests
 import json
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
 
@@ -8,11 +8,11 @@ app = Flask(__name__)
 
 # Replace with your actual HCP API token retrieval information
 hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
-hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"
-hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"
+hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"  # Replace with your actual client ID
+hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"  # Replace with your actual client secret
 
 vault_url = "https://api.hashicorp.cloud"
-vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"
+vault_secret_path = "/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open""  # Replace with your secret path
 
 def get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret):
     headers = {'content-type': 'application/json'}
@@ -31,6 +31,16 @@ def get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret):
     else:
         raise Exception("Failed to retrieve HCP API token")
 
+def get_secret_from_vault(vault_url, vault_secret_path, hcpapi_token):
+    headers = {"Authorization": f"Bearer {hcpapi_token}"}
+    response = requests.get(vault_url, headers=headers)
+
+    if response.status_code == 200:
+        secret_data = json.loads(response.text)["data"]
+        return secret_data
+    else:
+        raise Exception(f"Failed to retrieve secret: {response.status_code} - {response.text}")
+
 @app.route('/')
 def index():
     # Retrieve the HCP API token
@@ -48,7 +58,7 @@ def index():
             container_name = "test104"
 
             return render_template('index.html')
-    
+
     return 'Failed to retrieve secret or connection string'
 
 @app.route('/upload', methods=['POST'])
@@ -91,4 +101,5 @@ def upload_file():
 
 # Enable debugging mode
 if __name__ == '__main__':
+    app.run(debug=True)
     app.run(debug=True)
