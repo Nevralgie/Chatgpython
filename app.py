@@ -6,6 +6,9 @@ from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
+# Define blob_service_client at the module level
+blob_service_client = None
+
 # Replace with your actual HCP API token retrieval information
 hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
 hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"  # Replace with your actual client ID
@@ -61,6 +64,7 @@ def index():
 
         if connection_string:
             # Define your Azure Blob Storage account and container information
+            global blob_service_client 
             blob_service_client = BlobServiceClient.from_connection_string(connection_string)
             container_name = "test104"
 
