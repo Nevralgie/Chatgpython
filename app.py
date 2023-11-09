@@ -23,7 +23,7 @@ def get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret):
         "client_secret": hcpapi_client_secret
     }
 
-    response = requests.post(hcpapi_token_url, headers=headers, data=json.dumps(payload)
+    response = requests.post(hcpapi_token_url, headers=headers, data=json.dumps(payload))
 
     if response.status_code == 200:
         hcpapi_token = json.loads(response.text)["access_token"]
