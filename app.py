@@ -11,7 +11,7 @@ hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
 hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"  # Replace with your actual client ID
 hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"  # Replace with your actual client secret
 
-#vault_url = "https://api.hashicorp.cloud"
+# Replace with your actual HashiCorp Vault secret path
 vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"  # Replace with your secret path
 
 def get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret):
@@ -35,11 +35,16 @@ def get_secret_from_vault(vault_secret_path, hcpapi_token):
     headers = {"Authorization": f"Bearer {hcpapi_token}"}
     response = requests.get(vault_secret_path, headers=headers)
 
-    
-
     if response.status_code == 200:
-        secret_data = json.loads(response.text)["value"]
-        return secret_data
+        response_data = json.loads(response.text)
+        secrets = response_data.get("secrets")
+
+        if secrets and len(secrets) > 0:
+            connection_string = secrets[0].get("version", {}).get("value")
+            if connection_string:
+                return connection_string
+
+        raise Exception("Connection string not found in secrets")
     else:
         raise Exception(f"Failed to retrieve secret: {response.status_code} - {response.text}")
 
@@ -52,7 +57,7 @@ def index():
     secret_value = get_secret_from_vault(vault_secret_path, hcpapi_token)
 
     if secret_value:
-        connection_string = secret_value.get("connection_string")
+        connection_string = secret_value
 
         if connection_string:
             # Define your Azure Blob Storage account and container information
@@ -103,5 +108,4 @@ def upload_file():
 
 # Enable debugging mode
 if __name__ == '__main__':
-    app.run(debug=True)
     app.run(debug=True)
