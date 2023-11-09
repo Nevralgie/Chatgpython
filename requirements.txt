@@ -3,7 +3,5 @@ Werkzeug==2.2.3
 azure-common
 azure-nspkg
 azure-storage-blob
-#azure-identity
-#azure-keyvault-secrets
 datetime
-hvac
+requests
