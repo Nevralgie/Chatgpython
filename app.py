@@ -35,10 +35,10 @@ def get_secret_from_vault(vault_secret_path, hcpapi_token):
     headers = {"Authorization": f"Bearer {hcpapi_token}"}
     response = requests.get(vault_secret_path, headers=headers)
 
-    print(response.text)
+    
 
     if response.status_code == 200:
-        secret_data = json.loads(response.text)["data"]
+        secret_data = json.loads(response.text)["value"]
         return secret_data
     else:
         raise Exception(f"Failed to retrieve secret: {response.status_code} - {response.text}")
