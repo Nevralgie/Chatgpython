@@ -46,8 +46,8 @@ def get_secret_from_vault(vault_url, vault_secret_path, hcpapi_token):
 
     secret_value = get_secret_from_vault(vault_url, vault_secret_path, hcpapi_token)
 
-    if secret_value:
-        connection_string = secret_value["connection_string"]
+if secret_value:
+    connection_string = secret_value["connection_string"]
 
     # Define your Azure Blob Storage account and container information
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
