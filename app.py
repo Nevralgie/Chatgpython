@@ -12,7 +12,6 @@ hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
 hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"
 hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"
 
-hcpapi_token = get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret)
 vault_url = "https://api.hashicorp.cloud"
 vault_secret_path = "/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"
 
