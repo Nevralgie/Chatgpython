@@ -7,8 +7,8 @@ from flask import Flask, request, render_template
 app = Flask(__name__)
 
 # Define at the module level
-blob_service_client = None
-
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+container_name = "test104"
 # Replace with your actual HCP API token retrieval information
 hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
 hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"  # Replace with your actual client ID
@@ -87,7 +87,7 @@ def upload_file():
 
         try:
             # Get a blob client
-            container_name = "test104"  # Replace with the actual container name
+            
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=file.filename)
 
             # Upload the file to Azure Blob Storage
