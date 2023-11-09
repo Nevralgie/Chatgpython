@@ -7,6 +7,7 @@ from flask import Flask, request, render_template
 app = Flask(__name__)
 
 # Define at the module level
+connection_string = get_secret_from_vault()
 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_name = "test104"
 # Replace with your actual HCP API token retrieval information
