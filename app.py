@@ -3,6 +3,7 @@ import json
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
+from applicationinsights import TelemetryClient
 
 app = Flask(__name__)
 
@@ -18,6 +19,10 @@ hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9
 
 # Replace with your actual HashiCorp Vault secret path
 vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"  # Replace with your secret path
+
+# Replace with your actual Application Insights instrumentation key
+instrumentation_key = "your_application_insights_instrumentation_key"
+app_insights_client = TelemetryClient(instrumentation_key)
 
 def get_secret_from_vault(vault_secret_path, hcpapi_token):
     headers = {"Authorization": f"Bearer {hcpapi_token}"}
@@ -62,26 +67,40 @@ def index():
     hcpapi_token = get_hcpapi_token(hcpapi_token_url, hcpapi_client_id, hcpapi_client_secret)
 
     # Use the HCP API token to get the secret from HashiCorp Vault
-    secret_value = get_secret_from_vault(vault_secret_path, hcpapi_token)
+    try:
+        secret_value = get_secret_from_vault(vault_secret_path, hcpapi_token)
+        if secret_value:
+            connection_string = secret_value
 
-    if secret_value:
-        connection_string = secret_value
+            if connection_string:
+                blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
-        if connection_string:
-            blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+                # Track event in Application Insights
+                app_insights_client.track_event("IndexPageVisited", properties={"Page": "Index"})
 
-            return render_template('index.html')
+                return render_template('index.html')
+
+    except Exception as e:
+        # Track exception in Application Insights
+        app_insights_client.track_exception()
+        return f'Failed to retrieve secret or connection string: {str(e)}'
 
     return 'Failed to retrieve secret or connection string'
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    # Track upload request in Application Insights
+    app_insights_client.track_event("UploadRequestReceived", properties={"Endpoint": "/upload"})
+
     if 'file' not in request.files:
+        app_insights_client.track_event("UploadFailed", properties={"Reason": "NoFilePart"})
         return 'No file part'
 
     file = request.files['file']
 
     if file.filename == '':
+        app_insights_client.track_event("UploadFailed", properties={"Reason": "NoSelectedFile"})
         return 'No selected file'
 
     if file:
@@ -108,9 +127,47 @@ def upload_file():
             # Build the temporary download link
             sas_url = f"{blob_client.url}?{sas_token}"
 
-            return f'File successfully uploaded to Azure Blob Storage. Temporary link: <a href="{sas_url}">Download</a>'
+             # Track successful upload in Application Insights
+            app_insights_client.track_event("FileUploaded", properties={"FileName": filename})
+
+            return f'File successfully uploaded to Azure Blob Storage.'
+
         except Exception as e:
+            # Track upload failure in Application Insights
+            app_insights_client.track_exception()
             return f'Error uploading file: {str(e)}'
+
+@app.route('/download', methods=['GET'])
+def download_file():
+    # Track download request in Application Insights
+    app_insights_client.track_event("DownloadRequestReceived", properties={"Endpoint": "/download"})
+
+    # Replace with your actual blob name
+    blob_name = filename
+
+    try:
+        # Get a blob client
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+
+        # Download the blob content
+        blob_data = blob_client.download_blob()
+
+        # Set up the response
+        response = send_file(
+            blob_data.content_as_bytes(),
+            as_attachment=True,
+            download_name=blob_name
+        )
+
+        # Track successful download in Application Insights
+        app_insights_client.track_event("FileDownloaded", properties={"FileName": blob_name})
+
+        return response
+
+    except Exception as e:
+        # Track download failure in Application Insights
+        app_insights_client.track_exception()
+        return f'Error downloading file: {str(e)}'
 
 # Enable debugging mode
 if __name__ == '__main__':
