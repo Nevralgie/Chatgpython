@@ -142,32 +142,43 @@ def download_file():
     # Track download request in Application Insights
     app_insights_client.track_event("DownloadRequestReceived", properties={"Endpoint": "/download"})
 
-    # Replace with your actual blob name
-    blob_name = filename
+    # Replace with the actual blob name you want to download
+    blob_name = "your_blob_name"
 
     try:
         # Get a blob client
         blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
 
-        # Download the blob content
-        blob_data = blob_client.download_blob()
-
-        # Set up the response
-        response = send_file(
-            blob_data.content_as_bytes(),
-            as_attachment=True,
-            download_name=blob_name
+        # Generate a SAS (Shared Access Signature) token for the blob
+        sas_token = generate_blob_sas(
+            account_name=blob_service_client.account_name,
+            container_name=container_name,
+            blob_name=blob_name,
+            account_key=blob_service_client.credential.account_key,
+            permission=BlobSasPermissions(read=True),
+            expiry=datetime.utcnow() + timedelta(hours=1)
         )
+
+        # Build the temporary download link
+        sas_url = f"{blob_client.url}?{sas_token}"
 
         # Track successful download in Application Insights
         app_insights_client.track_event("FileDownloaded", properties={"FileName": blob_name})
 
+        # Track download size in bytes (example, you can customize this)
+        download_size = len(blob_client.download_blob().readall())
+        app_insights_client.track_metric("DownloadSize", download_size)
+
+        # Set up the response with a redirect to the temporary download link
+        response = make_response('', 302)
+        response.headers['Location'] = sas_url
         return response
 
     except Exception as e:
         # Track download failure in Application Insights
         app_insights_client.track_exception()
         return f'Error downloading file: {str(e)}'
+
 
 # Enable debugging mode
 if __name__ == '__main__':
