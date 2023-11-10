@@ -21,7 +21,7 @@ hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9
 vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"  # Replace with your secret path
 
 # Replace with your actual Application Insights instrumentation key
-instrumentation_key = "your_application_insights_instrumentation_key"
+instrumentation_key = "1288125f-0e84-47d1-82ec-746cd7d41219"
 app_insights_client = TelemetryClient(instrumentation_key)
 
 def get_secret_from_vault(vault_secret_path, hcpapi_token):
