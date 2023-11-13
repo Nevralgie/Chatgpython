@@ -81,7 +81,7 @@ def index():
 def upload_file():
 
     if 'file' not in request.files:
-        app_insights_client.track_event("UploadFailed", properties={"Reason": "NoFilePart"})
+       
         return 'No file part'
 
     file = request.files['file']
