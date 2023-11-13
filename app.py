@@ -10,15 +10,15 @@ app = Flask(__name__)
 # Define at the module level
 connection_string = None  # Initialize connection_string
 blob_service_client = None  # Initialize blob_service_client
-container_name = "testgit"
+container_name = "test104"
 
 # Replace with your actual HCP API token retrieval information
 hcpapi_token_url = "https://auth.hashicorp.com/oauth/token"
-hcpapi_client_id = "cXvmplGRLcLqpf5LjoH3bhklzZr5sHuj"  # Replace with your actual client ID
-hcpapi_client_secret = "nozcfrVSVb22woT_MYCZd4L75T1Ewg9b3MLt4Q0tVw-U7Yf7DomWK0obgKY6ENFE"  # Replace with your actual client secret
+hcpapi_client_id = "ScF6ITDLLHe5bOYScpTfyBMCiG0XkPva"  # Replace with your actual client ID
+hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9BEfP7US-"  # Replace with your actual client secret
 
 # Replace with your actual HashiCorp Vault secret path
-vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/testgit/open"  # Replace with your secret path
+vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"  # Replace with your secret path
 
 def get_secret_from_vault(vault_secret_path, hcpapi_token):
     headers = {"Authorization": f"Bearer {hcpapi_token}"}
