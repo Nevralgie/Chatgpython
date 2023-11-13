@@ -115,7 +115,7 @@ def upload_file():
             sas_url = f"{blob_client.url}?{sas_token}"
 
              
-            return f'File successfully uploaded to Azure Blob Storage.'
+            return f'File successfully uploaded to Azure Blob Storage. Temporary link: <a href="{sas_url}">Download</a>'
 
         except Exception as e:
             
