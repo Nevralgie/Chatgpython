@@ -3,7 +3,7 @@ import json
 from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
 from datetime import datetime, timedelta
 from flask import Flask, request, render_template
-from applicationinsights import TelemetryClient
+
 
 app = Flask(__name__)
 
@@ -19,10 +19,6 @@ hcpapi_client_secret = "qdACtzLojKO9gYCzfc6oc3VBtshKSOoJEQVLUUk6W6gL9bhvz7uhbQP9
 
 # Replace with your actual HashiCorp Vault secret path
 vault_secret_path = "https://api.cloud.hashicorp.com/secrets/2023-06-13/organizations/92e300b2-dc96-41e1-af99-488fd920bf48/projects/3716cc7c-ed99-4279-a820-7dc4d78d7b54/apps/webapppy/open"  # Replace with your secret path
-
-# Replace with your actual Application Insights instrumentation key
-instrumentation_key = "1288125f-0e84-47d1-82ec-746cd7d41219"
-app_insights_client = TelemetryClient(instrumentation_key)
 
 def get_secret_from_vault(vault_secret_path, hcpapi_token):
     headers = {"Authorization": f"Bearer {hcpapi_token}"}
@@ -75,23 +71,14 @@ def index():
             if connection_string:
                 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
-                # Track event in Application Insights
-                app_insights_client.track_event("IndexPageVisited", properties={"Page": "Index"})
-
                 return render_template('index.html')
 
     except Exception as e:
-        # Track exception in Application Insights
-        app_insights_client.track_exception()
-        return f'Failed to retrieve secret or connection string: {str(e)}'
-
-    return 'Failed to retrieve secret or connection string'
+        return 'Failed to retrieve secret or connection string'
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    # Track upload request in Application Insights
-    app_insights_client.track_event("UploadRequestReceived", properties={"Endpoint": "/upload"})
 
     if 'file' not in request.files:
         app_insights_client.track_event("UploadFailed", properties={"Reason": "NoFilePart"})
@@ -100,7 +87,7 @@ def upload_file():
     file = request.files['file']
 
     if file.filename == '':
-        app_insights_client.track_event("UploadFailed", properties={"Reason": "NoSelectedFile"})
+        
         return 'No selected file'
 
     if file:
@@ -127,58 +114,12 @@ def upload_file():
             # Build the temporary download link
             sas_url = f"{blob_client.url}?{sas_token}"
 
-             # Track successful upload in Application Insights
-            app_insights_client.track_event("FileUploaded", properties={"FileName": filename})
-
+             
             return f'File successfully uploaded to Azure Blob Storage.'
 
         except Exception as e:
-            # Track upload failure in Application Insights
-            app_insights_client.track_exception()
+            
             return f'Error uploading file: {str(e)}'
-
-@app.route('/download', methods=['GET'])
-def download_file():
-    # Track download request in Application Insights
-    app_insights_client.track_event("DownloadRequestReceived", properties={"Endpoint": "/download"})
-
-    # Replace with the actual blob name you want to download
-    blob_name = "your_blob_name"
-
-    try:
-        # Get a blob client
-        blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
-
-        # Generate a SAS (Shared Access Signature) token for the blob
-        sas_token = generate_blob_sas(
-            account_name=blob_service_client.account_name,
-            container_name=container_name,
-            blob_name=blob_name,
-            account_key=blob_service_client.credential.account_key,
-            permission=BlobSasPermissions(read=True),
-            expiry=datetime.utcnow() + timedelta(hours=1)
-        )
-
-        # Build the temporary download link
-        sas_url = f"{blob_client.url}?{sas_token}"
-
-        # Track successful download in Application Insights
-        app_insights_client.track_event("FileDownloaded", properties={"FileName": blob_name})
-
-        # Track download size in bytes (example, you can customize this)
-        download_size = len(blob_client.download_blob().readall())
-        app_insights_client.track_metric("DownloadSize", download_size)
-
-        # Set up the response with a redirect to the temporary download link
-        response = make_response('', 302)
-        response.headers['Location'] = sas_url
-        return response
-
-    except Exception as e:
-        # Track download failure in Application Insights
-        app_insights_client.track_exception()
-        return f'Error downloading file: {str(e)}'
-
 
 # Enable debugging mode
 if __name__ == '__main__':
