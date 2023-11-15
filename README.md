@@ -1,9 +1,9 @@
-# Python app in an Azure Web App service : 
+# Python app hosted by Azure's Web app :  
 
 ------------------------------------------------------------------------------------------------------------------------------
 
 In this project, we'll learn to deploy an app using the Web App service provided by Microsoft Azure. This app allows users to upload files, and we'll couple it with other Azure services.
-Using Azure Python SDK, the files will be uploaded to a blob storage whose credentials are stored in a Vault (Hashicorp Vault Secrets). The app will retrieve these credentials, and generate an ephemeral download link for the user.
+Using Azure Python SDK, the files will be uploaded to a blob storage whose credentials are stored in a Vault retrieved through an API call (Hashicorp Vault Secrets). The app will retrieve these credentials, and generate an ephemeral download link for the user.
 The Web app will enable github Actions for continuous deployment. We'll finally use Logic Apps to periodically clean up expired files from Azure Blob Storage.
 
 ------------------------------------------------------------------------------------------------------------------------------
