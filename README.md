@@ -14,7 +14,6 @@ Requirements :
 - Basic knowledge of Azure portal and services
 - Github account
 - [Hashicorp Cloud](https://portal.cloud.hashicorp.com/) account for storing secrets in Vault
-- Python >= 3.9
 
 Steps : 
    
