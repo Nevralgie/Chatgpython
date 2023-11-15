@@ -1,4 +1,4 @@
-# Python app hosted by Azure's Web app :  
+# Python app hosted by Azure's Web app service (Paas) :  
 
 ------------------------------------------------------------------------------------------------------------------------------
 
